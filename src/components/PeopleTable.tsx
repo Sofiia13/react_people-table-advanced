@@ -1,6 +1,7 @@
 import React from 'react';
 import { Person } from '../types';
 import { PersonLink } from './PersonLink';
+import { useSearchParams } from 'react-router-dom';
 
 type Props = {
   people: Person[];
@@ -9,6 +10,31 @@ type Props = {
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
+  const [searchParams] = useSearchParams();
+
+  const query = searchParams.get('query') || '';
+  const sex = searchParams.get('sex') || '';
+  const centuries = searchParams.getAll('centuries');
+
+  const getCentury = (wasBorn: number) => {
+    return Math.floor((wasBorn - 1) / 100) + 1;
+  };
+
+  const filteredPeople = people.filter(person => {
+    const matchesQuery = [person.name, person.fatherName, person.motherName]
+      .filter(Boolean)
+      .some(name => name?.toLowerCase().includes(query.toLowerCase()));
+
+    const matchesSex = sex ? person.sex === sex : true;
+
+    const century = getCentury(person.born);
+
+    const matchesCentury =
+      centuries.length > 0 ? centuries.includes(String(century)) : true;
+
+    return matchesQuery && matchesSex && matchesCentury;
+  });
+
   return (
     <table
       data-cy="peopleTable"
@@ -66,7 +92,7 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
       </thead>
 
       <tbody>
-        {people.map(person => (
+        {filteredPeople.map(person => (
           <tr
             key={person.slug}
             data-cy="person"
@@ -81,7 +107,7 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
             <td>{person.born}</td>
             <td>{person.died}</td>
             <td>
-              {person.fatherName ? (
+              {person.motherName ? (
                 person.mother ? (
                   <PersonLink person={person.mother} />
                 ) : (

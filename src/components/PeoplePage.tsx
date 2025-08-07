@@ -42,33 +42,29 @@ export const PeoplePage = () => {
       <h1 className="title">People Page</h1>
 
       <div className="block">
-        <div className="columns is-desktop is-flex-direction-row-reverse">
-          <div className="column is-7-tablet is-narrow-desktop">
-            <PeopleFilters />
-          </div>
+        {isLoading && <Loader />}
 
-          <div className="column">
-            <div className="box table-container">
-              {isLoading && <Loader />}
+        {hasErrorMessage && (
+          <p data-cy="peopleLoadingError">Something went wrong</p>
+        )}
 
-              {hasErrorMessage && (
-                <p data-cy="peopleLoadingError">Something went wrong</p>
-              )}
+        {!isLoading && !hasErrorMessage && people.length === 0 && (
+          <p data-cy="noPeopleMessage">There are no people on the server</p>
+        )}
 
-              {!isLoading && !hasErrorMessage && people.length === 0 && (
-                <p data-cy="noPeopleMessage">
-                  There are no people on the server
-                </p>
-              )}
+        {!isLoading && !hasErrorMessage && people.length > 0 && (
+          <div className="columns is-desktop is-flex-direction-row-reverse">
+            <div className="column is-7-tablet is-narrow-desktop">
+              <PeopleFilters />
+            </div>
 
-              <p>There are no people matching the current search criteria</p>
-
-              {!isLoading && !hasErrorMessage && (
+            <div className="column">
+              <div className="box table-container">
                 <PeopleTable people={people} selectedSlug={slug} />
-              )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
