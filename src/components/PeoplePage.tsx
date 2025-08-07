@@ -18,7 +18,17 @@ export const PeoplePage = () => {
           'https://mate-academy.github.io/react_people-table/api/people.json',
         );
 
+        if (!response.ok) {
+          throw new Error('Failed to fetch');
+        }
+
         const data = await response.json();
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format');
+        }
 
         const peopleWithParents = data.map((person: Person) => ({
           ...person,
@@ -44,7 +54,7 @@ export const PeoplePage = () => {
       <div className="block">
         {isLoading && <Loader />}
 
-        {hasErrorMessage && (
+        {!isLoading && hasErrorMessage && (
           <p data-cy="peopleLoadingError">Something went wrong</p>
         )}
 
