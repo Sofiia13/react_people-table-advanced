@@ -18,6 +18,7 @@ export const PeopleFilters: React.FC<Props> = () => {
     } else {
       params.set('sex', value);
     }
+
     setSearchParams(params);
   }
 
@@ -56,7 +57,6 @@ export const PeopleFilters: React.FC<Props> = () => {
   }
 
   const allCenturies = ['16', '17', '18', '19', '20'];
-
 
   return (
     <nav className="panel">

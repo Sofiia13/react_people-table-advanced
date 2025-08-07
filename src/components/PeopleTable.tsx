@@ -10,7 +10,7 @@ type Props = {
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get('query') || '';
   const sex = searchParams.get('sex') || '';
@@ -35,6 +35,61 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
     return matchesQuery && matchesSex && matchesCentury;
   });
 
+  function toggleSort(field: string) {
+    const currentSort = searchParams.get('sort');
+    const currentOrder = searchParams.get('order');
+
+    const params = new URLSearchParams(searchParams);
+
+    if (currentSort !== field) {
+      // Перше натискання: сортування за зростанням
+      params.set('sort', field);
+      params.delete('order');
+    } else if (!currentOrder) {
+      // Друге натискання: сортування за спаданням
+      params.set('sort', field);
+      params.set('order', 'desc');
+    } else {
+      // Третє натискання: прибрати сортування
+      params.delete('sort');
+      params.delete('order');
+    }
+
+    setSearchParams(params);
+  }
+
+  const sortKey = searchParams.get('sort');
+  const sortOrder = searchParams.get('order') === 'desc' ? 'desc' : 'asc';
+
+  const sortedPeople = [...filteredPeople];
+
+  if (sortKey) {
+    sortedPeople.sort((a, b) => {
+      let valueA = a[sortKey as keyof Person];
+      let valueB = b[sortKey as keyof Person];
+
+      if (valueA === null || valueA === undefined) {
+        valueA = '';
+      }
+
+      if (valueB === null || valueB === undefined) {
+        valueB = '';
+      }
+
+      if (typeof valueA === 'string') {
+        valueA = valueA.toLowerCase();
+      }
+
+      if (typeof valueB === 'string') {
+        valueB = valueB.toLowerCase();
+      }
+
+      const compare = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+
+      return sortOrder === 'asc' ? compare : -compare;
+    });
+  }
+
   return (
     <table
       data-cy="peopleTable"
@@ -43,46 +98,94 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
       <thead>
         <tr>
           <th>
-            <span className="is-flex is-flex-wrap-nowrap">
+            <span
+              className="is-flex is-flex-wrap-nowrap"
+              style={{ cursor: 'pointer' }}
+              onClick={() => toggleSort('name')}
+            >
               Name
-              <a href="#/people?sort=name">
-                <span className="icon">
-                  <i className="fas fa-sort" />
-                </span>
-              </a>
+              <span className="icon">
+                <i
+                  className={`fas ${
+                    sortKey !== 'name'
+                      ? 'fa-sort'
+                      : sortOrder === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                  }`}
+                />
+              </span>
             </span>
           </th>
 
           <th>
-            <span className="is-flex is-flex-wrap-nowrap">
+            <span
+              className="is-flex is-flex-wrap-nowrap"
+              style={{ cursor: 'pointer' }}
+              onClick={() => toggleSort('sex')}
+            >
               Sex
-              <a href="#/people?sort=sex">
-                <span className="icon">
-                  <i className="fas fa-sort" />
-                </span>
-              </a>
+              <span className="icon">
+                <i
+                  className={`fas ${
+                    sortKey !== 'sex'
+                      ? 'fa-sort'
+                      : sortOrder === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                  }`}
+                />
+              </span>
             </span>
           </th>
 
           <th>
-            <span className="is-flex is-flex-wrap-nowrap">
+            <span
+              className="is-flex is-flex-wrap-nowrap"
+              style={{ cursor: 'pointer' }}
+              onClick={() => toggleSort('born')}
+            >
               Born
-              <a href="#/people?sort=born&amp;order=desc">
-                <span className="icon">
-                  <i className="fas fa-sort-up" />
-                </span>
-              </a>
+              <span className="icon">
+                <i
+                  className={`fas ${
+                    sortKey !== 'born'
+                      ? 'fa-sort'
+                      : sortOrder === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                  }`}
+                />
+              </span>
             </span>
           </th>
 
           <th>
-            <span className="is-flex is-flex-wrap-nowrap">
+            {/* <span className="is-flex is-flex-wrap-nowrap">
               Died
               <a href="#/people?sort=died">
                 <span className="icon">
                   <i className="fas fa-sort" />
                 </span>
               </a>
+            </span> */}
+            <span
+              className="is-flex is-flex-wrap-nowrap"
+              style={{ cursor: 'pointer' }}
+              onClick={() => toggleSort('died')}
+            >
+              Died
+              <span className="icon">
+                <i
+                  className={`fas ${
+                    sortKey !== 'died'
+                      ? 'fa-sort'
+                      : sortOrder === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                  }`}
+                />
+              </span>
             </span>
           </th>
 
@@ -92,7 +195,7 @@ export const PeopleTable: React.FC<Props> = ({ people, selectedSlug }) => {
       </thead>
 
       <tbody>
-        {filteredPeople.map(person => (
+        {sortedPeople.map(person => (
           <tr
             key={person.slug}
             data-cy="person"
