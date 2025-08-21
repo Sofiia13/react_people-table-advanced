@@ -11,7 +11,7 @@ export const App = () => {
       <Navbar />
 
       <div className="section">
-        <div className="container"  style={{ paddingTop: '50px' }}>
+        <div className="container" style={{ paddingTop: '50px' }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
