@@ -6,7 +6,6 @@ type Props = {};
 export const PeopleFilters: React.FC<Props> = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // const sex = searchParams.get('sex') || '';
   const query = searchParams.get('query') || '';
   const centuries = searchParams.getAll('centuries') || [];
 
@@ -132,7 +131,7 @@ export const PeopleFilters: React.FC<Props> = () => {
           <div className="level-right ml-4">
             <a
               data-cy="centuryALL"
-              className="button is-success is-outlined"
+              className={`button ${centuries.length === 0 ? 'is-success' : 'is-success is-outlined'}`}
               href="#/people"
               onClick={clearCenturies}
             >
