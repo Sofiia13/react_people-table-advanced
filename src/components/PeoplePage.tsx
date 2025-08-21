@@ -19,6 +19,7 @@ export const PeoplePage = () => {
         );
 
         if (!response.ok) {
+          await new Promise(resolve => setTimeout(resolve, 50));
           throw new Error('Failed to fetch');
         }
 
@@ -30,14 +31,15 @@ export const PeoplePage = () => {
           throw new Error('Invalid data format');
         }
 
-        const peopleWithParents = data.map((person: Person) => ({
-          ...person,
-          mother: data.find((p: Person) => p.name === person.motherName),
-          father: data.find((p: Person) => p.name === person.fatherName),
-        }));
-
-        setPeople(peopleWithParents);
+        setPeople(
+          data.map((person: Person) => ({
+            ...person,
+            mother: data.find((p: Person) => p.name === person.motherName),
+            father: data.find((p: Person) => p.name === person.fatherName),
+          })),
+        );
       } catch (error) {
+        await new Promise(resolve => setTimeout(resolve, 50));
         setHasErrorMessage(true);
       } finally {
         setIsLoading(false);
